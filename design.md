@@ -22,9 +22,15 @@ The English Word Memorization Application is a Python-based tool designed to ass
 - **Study Sessions:**
   - Users can start a session by selecting a deck and specifying the number of cards to study.
   - Cards are presented one at a time, showing the word with hidden syllables, along with American English IPA and Japanese translation (e.g., "ap-___" [ˈæpəl] りんご).
+  - When the user answers, detailed character-by-character feedback is provided:
+    - Correct characters are shown in green
+    - Wrong characters are shown in red
+    - Extra characters are shown in yellow
+    - Missing characters are shown as blue underscores
   - If the user correctly spells the hidden syllables, the card is removed from the session.
   - If incorrect, the card reappears later in the session along with remaining cards until all selected cards are correctly answered.
   - Sessions are saved automatically, allowing users to resume where they left off.
+  - Users can type 'exit' at any time to save and exit the session.
 
 - **Statistics:**
   - Track session-specific stats:
@@ -150,14 +156,25 @@ The English Word Memorization Application is a Python-based tool designed to ass
   }
   ```
 
-- **CSV Import Format:**
-    - Three-column CSV with a header:
-        ```
-        word,IPA,japanese
-        apple,ˈæpəl,りんご
-        running,ˈrʌnɪŋ,走ること
-        computer,kəmˈpjuːtər,コンピュータ
-        ```
+### 3.4 Sample Test Data
+
+For testing purposes, save this content to a file named `sample_words.csv`:
+
+```csv
+word,IPA,japanese
+apple,ˈæpəl,りんご
+banana,bəˈnænə,バナナ
+computer,kəmˈpjuːtər,コンピュータ
+education,ˌedʒuˈkeɪʃən,教育
+football,ˈfʊtbɔːl,サッカー
+guitar,ɡɪˈtɑːr,ギター
+hospital,ˈhɑːspɪtl,病院
+internet,ˈɪntərnet,インターネット
+journal,ˈdʒɜːrnəl,ジャーナル
+knowledge,ˈnɑːlɪdʒ,知識
+```
+
+To import this sample data, use option 3 from the main menu and specify the path to this CSV file.
 
 ---
 

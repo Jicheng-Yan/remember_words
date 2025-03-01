@@ -40,6 +40,11 @@ class Session:
         Prepare cards for the session, either by creating new cards or loading from a saved session.
         """
         logger.info("Preparing cards for session")
+        # If we already have cards, don't recreate them
+        if self.cards:
+            logger.debug("Cards already exist, skipping preparation")
+            return
+
         if self._load_session():
             return
             
@@ -100,14 +105,26 @@ class Session:
                 logger.debug(f"Cards studied this session: {self.studied}")
                 
                 # Check the answer
-                if current_card.check_answer(user_input):
+                correct, feedback = current_card.check_answer(user_input)
+                if correct:
                     print("Correct!")
                     self.remaining_cards.remove(current_card)
                     logger.info(f"Correct answer for '{current_card.word.word}'. {len(self.remaining_cards)} cards remaining")
                 else:
-                    correct_syllable = current_card.word.syllables[current_card.hidden_index]
-                    print(f"Incorrect. The correct answer was: {correct_syllable}")
-                    logger.info(f"Incorrect answer for '{current_card.word.word}'. Expected: {correct_syllable}, Got: {user_input}")
+                    # Display character-by-character feedback using colors
+                    print("Incorrect. Here's what happened:")
+                    feedback_str = ""
+                    for status, char in feedback:
+                        if status == 'correct':
+                            feedback_str += f"\033[92m{char}\033[0m"  # Green for correct
+                        elif status in ['wrong', 'extra']:
+                            feedback_str += f"\033[91m{char}\033[0m"  # Red for wrong and extra
+                        elif status == 'missing':
+                            feedback_str += f"\033[94m_\033[0m"  # Blue underscore for missing
+                    
+                    print(f"Your input:  {feedback_str}")
+                    print(f"Correct was: {current_card.word.syllables[current_card.hidden_index]}")
+                    logger.info(f"Incorrect answer for '{current_card.word.word}'. Expected: {current_card.word.syllables[current_card.hidden_index]}, Got: {user_input}")
                     # The card stays in the remaining cards
         except KeyboardInterrupt:
             logger.warning("Session interrupted by user")
@@ -120,7 +137,7 @@ class Session:
         
         if not self.remaining_cards:
             logger.info("Session completed successfully")
-            print("\nCongratulations! You've completed the session.")
+            print("\nCongratulations! You've completed the session!")
             # Delete saved session if complete
             self._delete_session()
             
