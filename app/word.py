@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Word:
     """
@@ -6,31 +9,19 @@ class Word:
     """
     
     def __init__(self, word, syllables=None, ipa="", japanese=""):
-        """
-        Initialize a Word object.
-        
-        Args:
-            word (str): The full word (e.g., "apple").
-            syllables (list of str, optional): List of syllables (e.g., ["ap", "ple"]).
-            ipa (str, optional): American English IPA for pronunciation.
-            japanese (str, optional): Japanese translation.
-        """
+        """Initialize a Word object."""
+        logger.info(f"Creating Word object: {word}")
+        logger.debug(f"Word details - syllables: {syllables}, IPA: {ipa}, Japanese: {japanese}")
         self.word = word
         self.syllables = syllables or []
         self.ipa = ipa
         self.japanese = japanese
     
     def get_hidden_representation(self, hidden_index):
-        """
-        Returns the word with the specified syllable hidden.
-        
-        Args:
-            hidden_index (int): Index of the syllable to hide.
-            
-        Returns:
-            str: Word with the specified syllable hidden (e.g., "ap-___").
-        """
+        """Returns the word with the specified syllable hidden."""
+        logger.debug(f"Getting hidden representation for {self.word} with hidden_index {hidden_index}")
         if not self.syllables or hidden_index >= len(self.syllables):
+            logger.warning(f"Invalid hidden_index {hidden_index} for word {self.word}")
             return f"{self.word}-___"
             
         hidden_repr = []
@@ -39,16 +30,13 @@ class Word:
                 hidden_repr.append("___")
             else:
                 hidden_repr.append(syllable)
-                
-        return "-".join(hidden_repr)
+        result = "-".join(hidden_repr)
+        logger.debug(f"Hidden representation: {result}")
+        return result
     
     def to_dict(self):
-        """
-        Convert the Word object to a dictionary for JSON serialization.
-        
-        Returns:
-            dict: Dictionary representation of the Word.
-        """
+        """Convert the Word object to a dictionary for JSON serialization."""
+        logger.debug(f"Converting word {self.word} to dictionary")
         return {
             "word": self.word,
             "syllables": self.syllables,
@@ -58,15 +46,8 @@ class Word:
     
     @classmethod
     def from_dict(cls, word_dict):
-        """
-        Create a Word object from a dictionary.
-        
-        Args:
-            word_dict (dict): Dictionary containing word data.
-            
-        Returns:
-            Word: A new Word object.
-        """
+        """Create a Word object from a dictionary."""
+        logger.debug(f"Creating Word from dictionary: {word_dict}")
         return cls(
             word=word_dict["word"],
             syllables=word_dict.get("syllables", []),
@@ -76,38 +57,23 @@ class Word:
 
 
 class Card:
-    """
-    Represents a specific instance of a word with one hidden syllable for a session.
-    """
+    """Represents a specific instance of a word with one hidden syllable for a session."""
     
     def __init__(self, word, hidden_index):
-        """
-        Initialize a Card object.
-        
-        Args:
-            word (Word): Reference to the Word object.
-            hidden_index (int): Index of the syllable to hide.
-        """
+        """Initialize a Card object."""
+        logger.info(f"Creating Card for word '{word.word}' with hidden_index {hidden_index}")
         self.word = word
         self.hidden_index = hidden_index
         self.is_correct_first_attempt = None
     
     def get_prompt(self):
-        """
-        Returns the presentation string (e.g., "ap-___").
-        
-        Returns:
-            str: The word with the hidden syllable.
-        """
+        """Returns the presentation string."""
+        logger.debug(f"Getting prompt for card with word '{self.word.word}'")
         return self.word.get_hidden_representation(self.hidden_index)
     
     def get_full_prompt(self):
-        """
-        Returns the full prompt with IPA and Japanese translation.
-        
-        Returns:
-            str: Formatted prompt with hidden syllable, IPA, and Japanese.
-        """
+        """Returns the full prompt with IPA and Japanese translation."""
+        logger.debug(f"Getting full prompt for card with word '{self.word.word}'")
         prompt = self.get_prompt()
         details = []
         
@@ -118,25 +84,22 @@ class Card:
             details.append(self.word.japanese)
             
         details_str = " ".join(details)
-        return f"{prompt} {details_str}" if details_str else prompt
+        result = f"{prompt} {details_str}" if details_str else prompt
+        logger.debug(f"Full prompt: {result}")
+        return result
     
     def check_answer(self, user_input):
-        """
-        Checks if the user's input matches the hidden syllable.
-        
-        Args:
-            user_input (str): The user's answer.
-            
-        Returns:
-            bool: True if the answer is correct, False otherwise.
-        """
+        """Checks if the user's input matches the hidden syllable."""
+        logger.info(f"Checking answer for word '{self.word.word}': {user_input}")
         if not self.word.syllables or self.hidden_index >= len(self.word.syllables):
+            logger.warning(f"Invalid syllables or hidden_index for word '{self.word.word}'")
             return False
             
         correct = user_input.strip().lower() == self.word.syllables[self.hidden_index].lower()
         
-        # Set first attempt flag if not already set
         if self.is_correct_first_attempt is None:
             self.is_correct_first_attempt = correct
-            
+            logger.info(f"First attempt for word '{self.word.word}': {'correct' if correct else 'incorrect'}")
+        
+        logger.debug(f"Answer check result: {correct}")
         return correct
