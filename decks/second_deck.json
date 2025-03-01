@@ -1,0 +1,105 @@
+{
+  "name": "second_deck",
+  "words": [
+    {
+      "word": "apple",
+      "syllables": [
+        "apple"
+      ],
+      "ipa": "ˈæpəl",
+      "japanese": "りんご"
+    },
+    {
+      "word": "banana",
+      "syllables": [
+        "ba",
+        "na",
+        "na"
+      ],
+      "ipa": "bəˈnænə",
+      "japanese": "バナナ"
+    },
+    {
+      "word": "computer",
+      "syllables": [
+        "co",
+        "mpu",
+        "ter"
+      ],
+      "ipa": "kəmˈpjuːtər",
+      "japanese": "コンピュータ"
+    },
+    {
+      "word": "education",
+      "syllables": [
+        "edu",
+        "ca",
+        "tion"
+      ],
+      "ipa": "ˌedʒuˈkeɪʃən",
+      "japanese": "教育"
+    },
+    {
+      "word": "football",
+      "syllables": [
+        "foo",
+        "tball"
+      ],
+      "ipa": "ˈfʊtbɔːl",
+      "japanese": "サッカー"
+    },
+    {
+      "word": "guitar",
+      "syllables": [
+        "gui",
+        "tar"
+      ],
+      "ipa": "ɡɪˈtɑːr",
+      "japanese": "ギター"
+    },
+    {
+      "word": "hospital",
+      "syllables": [
+        "ho",
+        "spi",
+        "tal"
+      ],
+      "ipa": "ˈhɑːspɪtl",
+      "japanese": "病院"
+    },
+    {
+      "word": "internet",
+      "syllables": [
+        "inte",
+        "rnet"
+      ],
+      "ipa": "ˈɪntərnet",
+      "japanese": "インターネット"
+    },
+    {
+      "word": "journal",
+      "syllables": [
+        "jou",
+        "rnal"
+      ],
+      "ipa": "ˈdʒɜːrnəl",
+      "japanese": "ジャーナル"
+    },
+    {
+      "word": "knowledge",
+      "syllables": [
+        "kno",
+        "wle",
+        "dge"
+      ],
+      "ipa": "ˈnɑːlɪdʒ",
+      "japanese": "知識"
+    }
+  ],
+  "stats": {
+    "total_time": 0,
+    "total_sessions": 0,
+    "total_studied": 0,
+    "total_remembered": 0
+  }
+}

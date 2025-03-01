@@ -1,0 +1,38 @@
+{
+  "deck_name": "test_deck",
+  "cards": [
+    {
+      "word": {
+        "word": "apple",
+        "syllables": [
+          "ap",
+          "ple"
+        ],
+        "ipa": "ˈæpəl",
+        "japanese": "りんご"
+      },
+      "hidden_index": 1,
+      "is_correct_first_attempt": false
+    },
+    {
+      "word": {
+        "word": "banana",
+        "syllables": [
+          "ba",
+          "na",
+          "na"
+        ],
+        "ipa": "bəˈnænə",
+        "japanese": "バナナ"
+      },
+      "hidden_index": 0,
+      "is_correct_first_attempt": null
+    }
+  ],
+  "remaining_indices": [
+    0,
+    1
+  ],
+  "studied": 1,
+  "start_time": 1000
+}
