@@ -69,6 +69,11 @@ The `word` column is required, while `IPA` and `japanese` columns are optional.
 During a study session:
 - A word is presented with one syllable hidden (e.g., "ap-___" for "apple")
 - Type the missing syllable to answer
+- You'll receive detailed character-by-character feedback:
+  - Correct characters shown in green
+  - Wrong characters shown in red
+  - Extra characters shown in yellow
+  - Missing characters shown as blue underscores
 - Correct answers remove the card from the session
 - Incorrect answers keep the card in rotation
 - Type 'exit' to save and exit the session
@@ -92,11 +97,43 @@ remembering_words/
 
 ## Testing
 
-Run the test suite with:
-```
+The project uses Python's built-in unittest framework for testing. Tests are organized into multiple test files covering different components of the application.
+
+### Running Tests
+
+You can run the full test suite using either unittest or pytest:
+
+```bash
+# Using unittest
 python -m unittest discover tests
+
+# Using pytest
+pytest tests/
+```
+
+### Test Structure
+
+The test suite includes:
+- `test_word.py`: Tests for Word class functionality and syllable handling
+- `test_deck.py`: Tests for Deck management and operations
+- `test_session.py`: Tests for study session logic
+- `test_integration.py`: End-to-end integration tests
+
+### Sample Test Output
+
+```
+test_create_deck (tests.test_deck.TestDeck) ... ok
+test_load_deck (tests.test_deck.TestDeck) ... ok
+test_add_word (tests.test_word.TestWord) ... ok
+test_syllable_splitting (tests.test_word.TestWord) ... ok
+// ... more test results ...
+
+----------------------------------------------------------------------
+Ran XX tests in X.XXXs
+
+OK
 ```
 
 ## License
 
-[MIT License](LICENSE) 
+[MIT License](LICENSE)

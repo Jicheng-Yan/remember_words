@@ -6,7 +6,7 @@ import unittest
 import tempfile
 import json
 import shutil
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock, mock_open, call
 
 # Add parent directory to path to import app modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -213,63 +213,81 @@ class TestSession(unittest.TestCase):
     @patch('app.session.Session._load_session')
     @patch('app.session.Session._save_session')
     def test_run_session(self, mock_save, mock_load, mock_choice, mock_time, mock_print, mock_input):
-        """Test running a complete session"""
+        """Test running a complete session with character-by-character feedback"""
         # Set up mocks
         mock_time.return_value = 1600
         mock_load.return_value = False  # No saved session
         
-        # Create specific cards for testing
+        # Create specific test cards
+        test_deck = Deck("test_deck")
         word1 = Word("apple", ["ap", "ple"])
         word2 = Word("banana", ["ba", "na", "na"])
-        card1 = Card(word1, 0)
-        card2 = Card(word2, 1)
+        test_deck.add_word(word1)
+        test_deck.add_word(word2)
         
-        # Create a session with these cards
-        session = Session(self.deck)
+        card1 = Card(word1, 0)  # Hide "ap"
+        card2 = Card(word2, 1)  # Hide "na"
+        
+        # Set up a session with these cards
+        session = Session(test_deck)
         session.cards = [card1, card2]
         session.remaining_cards = [card1, card2]
         session.start_time = 1500
         
-        # Make random.choice return the first card and then raise StopIteration
-        # to simulate exiting the loop prematurely
-        mock_choice.side_effect = [card1]
+        # Mock random.choice to return cards in sequence
+        def mock_choice_impl(remaining_cards):
+            if card1 in remaining_cards:
+                return card1
+            return card2
+        mock_choice.side_effect = mock_choice_impl
         
-        # Set up user inputs - we'll only need one correct answer
-        mock_input.side_effect = ["ap"]  # Correct answer for first card
+        # Test cases for user input
+        mock_input.side_effect = [
+            "wrong",  # Wrong answer for first card
+            "ap",     # Correct answer for first card
+            "na"      # Correct answer for second card
+        ]
         
-        # Patch session._calculate_stats to return predefined stats
-        with patch.object(session, '_calculate_stats', return_value={
-                "time_spent": 100,
-                "studied_cards": 1,
-                "remembered_cards": 1,
-                "total_cards": 2
-            }), \
-             patch.object(session, '_display_stats'), \
-             patch.object(session, '_delete_session'):
+        # Run the session
+        stats = session.run()
+        
+        # Verify card behavior and feedback display
+        expected_calls = [
+            # Initial session info
+            call("\nStarting session with 2 cards from deck 'test_deck'"),
+            call("For each card, type the missing syllable (___)"),
+            call("Type 'exit' to save and exit the session"),
+            call("-" * 50),
             
-            # Manually make the run method process only one card
-            current_card = mock_choice.side_effect[0]
-            session.studied += 1
+            # First card (wrong answer)
+            call('\nCard: ___-ple'),
+            call("Incorrect. Here's what happened:"),
+            call("Your input:  \x1b[91mw\x1b[0m\x1b[91mr\x1b[0m\x1b[91mo\x1b[0m\x1b[91mn\x1b[0m\x1b[91mg\x1b[0m"),
+            call("Correct was: ap"),
             
-            # Check the answer
-            result = current_card.check_answer("ap")
-            self.assertTrue(result)
-            session.remaining_cards.remove(current_card)
+            # First card again (correct answer)
+            call('\nCard: ___-ple'),
+            call("Correct!"),
             
-            # Verify remaining cards has one fewer element
-            self.assertEqual(len(session.remaining_cards), 1)
+            # Second card (correct answer)
+            call('\nCard: ba-___-na'),
+            call("Correct!"),
             
-            # Verify session stats were updated
-            session._update_deck_stats({
-                "time_spent": 100,
-                "studied_cards": 1,
-                "remembered_cards": 1,
-                "total_cards": 2
-            })
+            # Session completion
+            call("\nCongratulations! You've completed the session!"),
             
-            # Check that the deck stats were updated
-            self.assertEqual(self.deck.stats["total_sessions"], 1)
-            self.assertEqual(self.deck.stats["total_studied"], 1)
+            # Stats display
+            call("\nSession Statistics:")
+        ]
+        
+        # Verify the print calls (excluding stats which are variable)
+        mock_print.assert_has_calls(expected_calls, any_order=False)
+        
+        # Verify session statistics
+        self.assertEqual(session.studied, 3)  # Three attempts total
+        self.assertEqual(len(session.remaining_cards), 0)  # All cards completed
+        self.assertEqual(test_deck.stats["total_sessions"], 1)
+        self.assertEqual(test_deck.stats["total_studied"], 3)
 
     @patch('builtins.print')
     @patch('app.session.Session._load_session')

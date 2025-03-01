@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+from itertools import zip_longest
 
 logger = logging.getLogger(__name__)
 
@@ -89,17 +90,53 @@ class Card:
         return result
     
     def check_answer(self, user_input):
-        """Checks if the user's input matches the hidden syllable."""
+        """
+        Checks if the user's input matches the hidden syllable.
+        
+        Args:
+            user_input (str): The user's answer.
+            
+        Returns:
+            tuple: (bool, list) where bool indicates if answer is correct and list contains
+                  tuples of (status, char) where status is one of:
+                  'correct': character matches
+                  'wrong': character doesn't match
+                  'extra': extra character in input
+                  'missing': missing character from correct answer
+        """
         logger.info(f"Checking answer for word '{self.word.word}': {user_input}")
         if not self.word.syllables or self.hidden_index >= len(self.word.syllables):
             logger.warning(f"Invalid syllables or hidden_index for word '{self.word.word}'")
-            return False
+            return False, []
             
-        correct = user_input.strip().lower() == self.word.syllables[self.hidden_index].lower()
+        correct_syllable = self.word.syllables[self.hidden_index].lower()
+        user_input = user_input.strip().lower()
         
+        # Compare character by character and create feedback
+        feedback = []
+        
+        # Mark all characters up to the length of the longer string as wrong unless they match
+        max_length = max(len(correct_syllable), len(user_input))
+        for i in range(max_length):
+            if i >= len(user_input):
+                # Missing character from correct answer
+                feedback.append(('missing', correct_syllable[i]))
+            elif i >= len(correct_syllable):
+                # Extra characters in user input
+                feedback.append(('extra', user_input[i]))
+            else:
+                # Both strings have characters at this position
+                if correct_syllable[i] == user_input[i]:
+                    feedback.append(('correct', user_input[i]))
+                else:
+                    feedback.append(('wrong', user_input[i]))
+        
+        correct = user_input == correct_syllable
+        
+        # Set first attempt flag if not already set
         if self.is_correct_first_attempt is None:
             self.is_correct_first_attempt = correct
             logger.info(f"First attempt for word '{self.word.word}': {'correct' if correct else 'incorrect'}")
         
-        logger.debug(f"Answer check result: {correct}")
-        return correct
+        logger.debug(f"Answer check result: {correct}, feedback: {feedback}")
+        return correct, feedback

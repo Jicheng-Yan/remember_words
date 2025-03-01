@@ -103,20 +103,54 @@ class TestCard(unittest.TestCase):
     def test_check_answer(self):
         """Test answer checking functionality"""
         # Test correct answer
-        self.assertTrue(self.card1.check_answer("ap"))
+        correct, feedback = self.card1.check_answer("ap")
+        self.assertTrue(correct)
         self.assertTrue(self.card1.is_correct_first_attempt)
+        self.assertEqual(feedback, [('correct', 'a'), ('correct', 'p')])
         
-        # Test incorrect answer
-        self.assertFalse(self.card2.check_answer("wrong"))
+        # Test incorrect answer with different types of mismatches
+        correct, feedback = self.card2.check_answer("wrong")
+        self.assertFalse(correct)
         self.assertFalse(self.card2.is_correct_first_attempt)
+        self.assertEqual(feedback, [
+            ('wrong', 'w'),
+            ('wrong', 'r'),
+            ('wrong', 'o'),
+            ('extra', 'n'),
+            ('extra', 'g')
+        ])
+        
+        # Test with shorter input
+        correct, feedback = self.card2.check_answer("pl")
+        self.assertFalse(correct)
+        self.assertEqual(feedback, [
+            ('correct', 'p'),
+            ('correct', 'l'),
+            ('missing', 'e')
+        ])
+        
+        # Test with longer input
+        correct, feedback = self.card2.check_answer("pleep")
+        self.assertFalse(correct)
+        self.assertEqual(feedback, [
+            ('correct', 'p'),
+            ('correct', 'l'),
+            ('correct', 'e'),
+            ('extra', 'e'),
+            ('extra', 'p')
+        ])
         
         # Test case-insensitivity
         card3 = Card(self.word, 0)
-        self.assertTrue(card3.check_answer("AP"))
+        correct, feedback = card3.check_answer("AP")
+        self.assertTrue(correct)
+        self.assertEqual(feedback, [('correct', 'a'), ('correct', 'p')])
         
         # Test with out-of-range hidden_index
         card_invalid = Card(self.word, 5)
-        self.assertFalse(card_invalid.check_answer("anything"))
+        correct, feedback = card_invalid.check_answer("anything")
+        self.assertFalse(correct)
+        self.assertEqual(feedback, [])
 
 
 if __name__ == '__main__':

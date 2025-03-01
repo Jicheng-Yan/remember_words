@@ -45,13 +45,14 @@ sequenceDiagram
             Session->>Card: check_answer(user_input)
             
             alt Answer correct
-                Card-->>Session: Return true
+                Card-->>Session: Return true with feedback
                 Session->>User: Display "Correct!"
                 Session->>Session: Remove card from remaining_cards
             else Answer incorrect
-                Card-->>Session: Return false
-                Session->>User: Display correct answer
+                Card-->>Session: Return false with feedback
+                Session->>User: Display character-by-character feedback
                 Note over Session: Card remains in remaining_cards
+                Note over User: Shows correct/wrong/missing/extra characters
             end
         end
     end
@@ -84,6 +85,11 @@ sequenceDiagram
 3. **Session Execution**:
    - The user is presented with cards one at a time in random order
    - For each card, the user inputs an answer or can choose to exit
+   - The system checks the answer character by character and provides detailed feedback:
+     - Correct characters shown in green
+     - Wrong characters shown in red
+     - Extra characters shown in yellow
+     - Missing characters shown as blue underscores
    - Correct answers remove the card from rotation
    - Incorrect answers keep the card in rotation
    - If the user chooses to exit, the session state is saved
